@@ -134,11 +134,9 @@ func main() {
 		logger.Log.Errorf("Server forced to shutdown: %v", err)
 	}
 
-	// Wait for any remaining tasks
-	select {
-	case <-ctx.Done():
-		logger.Log.Info("Server shutdown complete")
-	}
+	// Wait for context to complete
+	<-ctx.Done()
+	logger.Log.Info("Server shutdown complete")
 }
 
 // Custom logging middleware for Gin
