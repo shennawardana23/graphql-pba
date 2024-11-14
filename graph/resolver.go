@@ -1,11 +1,18 @@
 package graph
 
 import (
-	_ "github.com/lib/pq"
-	"github.com/shennawardana23/graphql-pba/internal/service"
+	"github.com/go-pg/pg/v10"
+	"github.com/shennawardana23/graphql-pba/internal/repository"
 )
 
-// Resolver serves as dependency injection container
 type Resolver struct {
-	UserService *service.UserService
+	DB             *pg.DB
+	UserRepository *repository.UserRepository
+}
+
+func NewResolver(db *pg.DB) *Resolver {
+	return &Resolver{
+		DB:             db,
+		UserRepository: repository.NewUserRepository(db),
+	}
 }

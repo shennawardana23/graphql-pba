@@ -3,8 +3,9 @@ package exception
 import (
 	"context"
 	"database/sql"
+	"strings"
 
-	"github.com/lib/pq"
+	"github.com/go-pg/pg/v10"
 	"github.com/shennawardana23/graphql-pba/internal/util/logger"
 )
 
@@ -23,24 +24,53 @@ func PanicOnErrorContext(ctx context.Context, err error) {
 }
 
 func TranslatePostgresError(ctx context.Context, err error) error {
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = ErrEmptyResult
-		} else if myErr, isMyErr := err.(*pq.Error); isMyErr {
-			if myErr.Code.Name() == "23503" {
-				err = ErrForeignKeyViolation
-			} else if myErr.Code.Name() == "23505" {
-				err = ErrUniqueViolation
-			} else if myErr.Code.Name() == "42710" {
-				err = ErrDupeKey
-			} else {
-				logger.Error(ctx, err)
-			}
-		} else {
-			logger.Error(ctx, err)
-		}
+	if err == nil {
+		return nil
 	}
-	return err
+
+	var customErr *CustomError
+
+	switch {
+	case err == sql.ErrNoRows || err == pg.ErrNoRows:
+		customErr = ErrNotFound
+
+	case isPgError(err, "23505"): // unique_violation
+		if strings.Contains(err.Error(), "idx_users_email") {
+			customErr = ErrDuplicateEmail
+		} else {
+			customErr = NewCustomError(
+				"DUPLICATE_ENTRY",
+				"Duplicate entry found",
+				"A record with this value already exists",
+			)
+		}
+
+	case isPgError(err, "23503"): // foreign_key_violation
+		customErr = NewCustomError(
+			"FOREIGN_KEY_VIOLATION",
+			"Invalid reference",
+			"The referenced record does not exist",
+		)
+
+	case isPgError(err, "23502"): // not_null_violation
+		customErr = NewCustomError(
+			"REQUIRED_FIELD",
+			"Required field missing",
+			"Please provide all required fields",
+		)
+
+	default:
+		logger.Error(ctx, err)
+		customErr = ErrInternalServer
+	}
+
+	return customErr
+}
+
+// isPgError checks if the error is a postgres error with the given code
+func isPgError(err error, code string) bool {
+	pgErr, ok := err.(pg.Error)
+	return ok && pgErr.Field('C') == code
 }
 
 func CancelBackground(ctx context.Context, cancel context.CancelFunc, errorMessage string, successMessage string) {

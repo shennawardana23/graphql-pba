@@ -1,16 +1,18 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/go-playground/validator"
 	"github.com/shennawardana23/graphql-pba/graph"
 	"github.com/shennawardana23/graphql-pba/graph/generated"
 	"github.com/shennawardana23/graphql-pba/internal/app/database"
-	"github.com/shennawardana23/graphql-pba/internal/repository"
-	"github.com/shennawardana23/graphql-pba/internal/service"
+	"github.com/shennawardana23/graphql-pba/internal/middleware"
 	"github.com/shennawardana23/graphql-pba/internal/util/logger"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -21,6 +23,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/joho/godotenv/autoload"
+)
+
+const (
+	shutdownTimeout = 5 * time.Second
 )
 
 var (
@@ -40,6 +46,10 @@ func init() {
 func main() {
 	startTime := time.Now()
 
+	// Setup signal handling
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	// Create a logs directory if it doesn't exist
 	os.MkdirAll("logs", os.ModePerm)
 
@@ -54,17 +64,25 @@ func main() {
 	log.SetOutput(logFile)
 
 	// Initialize database
-	db := database.NewDB()
-	validate := validator.New()
-	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo, db, validate)
+	db := database.Connect()
+	defer func() {
+		logger.Log.Info("Closing database connection...")
+		if err := db.Close(); err != nil {
+			logger.Log.Errorf("Error closing database connection: %v", err)
+		}
+	}()
 
-	// Create GraphQL server
+	// Create resolver with dependencies
+	resolver := graph.NewResolver(db)
+
+	// Create GraphQL server with custom error presenter
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
-		Resolvers: &graph.Resolver{
-			UserService: userService,
-		},
+		Resolvers: resolver,
 	}))
+
+	// Set custom error presenter
+	srv.SetErrorPresenter(graph.ErrorPresenter)
+
 	log.Println("GraphQL server created successfully")
 
 	// Initialize Gin
@@ -74,6 +92,7 @@ func main() {
 	// Add custom logging middleware
 	r.Use(gin.Recovery())
 	r.Use(loggerMiddleware())
+	r.Use(middleware.ErrorHandler())
 
 	// Metrics endpoint
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
@@ -83,38 +102,68 @@ func main() {
 	r.GET("/", gin.WrapH(playground.Handler("GraphQL playground", "/query")))
 
 	port := os.Getenv("PORT")
-	// Log startup time
-	logger.Log.WithFields(logrus.Fields{
-		"startup_time": time.Since(startTime).String(),
-		"port":         port,
-	}).Info("Server is starting up on port " + port)
 
-	// Start server
-	log.Printf("GraphQL playground available at http://localhost:%s/", port)
-	if err := r.Run(":" + port); err != nil {
-		log.Fatal("Server failed to start: ", err)
+	// Create HTTP server
+	httpServer := &http.Server{
+		Addr:    ":" + port,
+		Handler: r,
+	}
+
+	// Start server in a goroutine
+	go func() {
+		logger.Log.WithFields(logrus.Fields{
+			"startup_time": time.Since(startTime).String(),
+			"port":         port,
+		}).Info("Server is starting up on port " + port)
+
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Log.Fatalf("Server failed to start: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	<-quit
+	logger.Log.Info("Shutting down server...")
+
+	// Create shutdown context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	// Shutdown tasks
+	if err := httpServer.Shutdown(ctx); err != nil {
+		logger.Log.Errorf("Server forced to shutdown: %v", err)
+	}
+
+	// Wait for any remaining tasks
+	select {
+	case <-ctx.Done():
+		logger.Log.Info("Server shutdown complete")
 	}
 }
 
 // Custom logging middleware for Gin
 func loggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Start timer
 		start := time.Now()
+		path := c.Request.URL.Path
 
-		// Process request
+		// Add request tracking
 		c.Next()
 
-		// Increment the request count
-		requestCount.WithLabelValues(c.Request.Method).Inc() // Increment request count
+		// Skip metrics endpoint logging
+		if path != "/metrics" {
+			// Increment the request count
+			requestCount.WithLabelValues(c.Request.Method).Inc()
 
-		// Log to file
-		log.Printf("method=%s path=%s status=%d latency=%s client_ip=%s",
-			c.Request.Method,
-			c.Request.URL.Path,
-			c.Writer.Status(),
-			time.Since(start).String(),
-			c.ClientIP(),
-		)
+			// Log request details
+			logger.Log.WithFields(logrus.Fields{
+				"method":     c.Request.Method,
+				"path":       path,
+				"status":     c.Writer.Status(),
+				"latency":    time.Since(start).String(),
+				"client":     c.ClientIP(),
+				"user_agent": c.Request.UserAgent(),
+			}).Info("Request processed")
+		}
 	}
 }

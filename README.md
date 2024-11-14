@@ -54,42 +54,47 @@ graph LR
 ```cmd
 project-root/
 ├── cmd/
-│   └── main.go
+│   └── main.go                      # Application entry point, server setup
 ├── graph/
 │   ├── generated/
-│   │   └── generated.go
+│   │   └── generated.go             # Auto-generated GraphQL code
 │   ├── models/
-│   │   └── models_gen.go
-│   ├── resolver.go
-│   ├── schema.graphqls
-│   └── schema.resolvers.go
+│   │   └── models_gen.go            # Auto-generated GraphQL models
+│   ├── error.go                     # GraphQL error handling
+│   ├── resolver.go                  # GraphQL resolver implementations
+│   ├── schema.graphqls             # GraphQL schema definition
+│   └── schema.resolvers.go         # GraphQL resolver implementations
 ├── internal/
 │   ├── app/
 │   │   ├── database/
-│   │   │   └── db.go
+│   │   │   └── db.go               # Database connection and configuration
 │   │   ├── monitoring/
-│   │   │   └── metric.go
+│   │   │   └── metric.go           # Prometheus metrics setup
 │   │   └── middleware/
-│   │       └── auth_middleware.go
+│   │       └── error_handler.go    # Global error handling middleware
 │   ├── entity/
-│   │   └── user.go
+│   │   └── user.go                 # User domain model
 │   ├── repository/
-│   │   └── user.go
-│   ├── service/
-│   │   └── user.go
+│   │   └── user.go                 # User database operations
 │   └── util/
 │       ├── exception/
-│       │   └── helper.go
-│       └── logger/
-│           └── logger.go
+│       │   ├── errors.go           # Custom error definitions
+│       │   ├── exception_code.go   # Error codes constants
+│       │   └── helper.go           # Error helper functions
+│       ├── logger/
+│       │   └── logger.go           # Logging configuration
+│       ├── validator/
+│       │   ├── custom_rules.go     # Custom validation rules
+│       │   ├── error_translator.go # Validation error formatting
+│       │   └── validator.go        # Input validation logic
 ├── logs/
-│   └── app.log
+│   └── app.log                     # Application logs
 ├── migrations/
-│   └── user.sql
-├── fluent-bit.conf
-├── go.mod
-├── go.sum
-└── gqlgen.yml
+│   └── user.sql                    # Database migration scripts
+├── fluent-bit.conf                 # Log forwarding configuration
+├── go.mod                          # Go module definition
+├── go.sum                          # Go module checksums
+└── gqlgen.yml                      # GraphQL code generation config
 ```
 
 ## Implementation Steps
@@ -109,7 +114,7 @@ Install required dependencies:
 ```bash
 go get -u github.com/99designs/gqlgen
 go get -u github.com/gin-gonic/gin
-go get -u github.com/jackc/pgx/v4
+go get github.com/go-pg/pg/v10
 ```
 
 ```bash
@@ -124,12 +129,16 @@ Create a PostgreSQL database and table. Here's the schema:
 CREATE DATABASE auth_db;
 
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE
 );
+
+-- Create unique index on email
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE deleted_at IS NULL;
 ```
 
 ### 3. Environment Variables
@@ -219,6 +228,44 @@ mutation {
 ```graphql
 mutation {
   deleteUser(id: 1)
+}
+```
+
+6. **Responses Error**:
+
+- Indentify Unique attributes
+
+```json
+{
+    "errors": [
+        {
+            "message": "Email address is already in use",
+            "path": ["createUser"],
+            "extensions": {
+                "code": "USER_EMAIL_EXISTS",
+                "details": "Please use a different email address"
+            }
+        }
+    ],
+    "data": null
+}
+```
+
+- Validation errors
+
+```json
+{
+    "errors": [
+        {
+            "message": "Invalid input provided",
+            "path": ["createUser"],
+            "extensions": {
+                "code": "INVALID_INPUT",
+                "details": "Please check your input and try again"
+            }
+        }
+    ],
+    "data": null
 }
 ```
 

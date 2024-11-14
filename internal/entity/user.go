@@ -1,20 +1,22 @@
 package entity
 
+import "time"
+
 type User struct {
-	ID        int64  `json:"id" db:"id"`
-	Name      string `json:"name" db:"name"`
-	Email     string `json:"email" db:"email"`
-	CreatedAt string `json:"createdAt" db:"created_at"`
-	UpdatedAt string `json:"updatedAt" db:"updated_at"`
+	ID        int64     `pg:"id,pk"`
+	Name      string    `pg:"name"`
+	Email     string    `pg:"email"`
+	CreatedAt time.Time `pg:"created_at"`
+	UpdatedAt time.Time `pg:"updated_at"`
 }
 
 type CreateUserInput struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name  string `pg:"name"`
+	Email string `pg:"email"`
 }
 
 type UpdateUserInput struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    int64  `pg:"id"`
+	Name  string `pg:"name"`
+	Email string `pg:"email"`
 }
