@@ -6,13 +6,15 @@ import (
 )
 
 type Resolver struct {
-	DB             *pg.DB
-	UserRepository *repository.UserRepository
+	DB                   *pg.DB
+	UserRepository       *repository.UserRepository
+	RestaurantRepository *repository.RestaurantRepository
 }
 
 func NewResolver(db *pg.DB) *Resolver {
 	return &Resolver{
-		DB:             db,
-		UserRepository: repository.NewUserRepository(db),
+		DB:                   db,
+		UserRepository:       repository.NewUserRepository(db),
+		RestaurantRepository: repository.NewRestaurantRepository(db),
 	}
 }

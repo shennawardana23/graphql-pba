@@ -2,10 +2,52 @@
 
 package model
 
+type NewRestaurant struct {
+	UserID             *int    `json:"userId,omitempty"`
+	RestaurantName     string  `json:"restaurantName"`
+	RestaurantLogo     string  `json:"restaurantLogo"`
+	RestaurantFavicon  *string `json:"restaurantFavicon,omitempty"`
+	ThumbnailDesktop   string  `json:"thumbnailDesktop"`
+	RestaurantPhone    *string `json:"restaurantPhone,omitempty"`
+	RestaurantWhatsapp *string `json:"restaurantWhatsapp,omitempty"`
+	RestaurantEmail    *string `json:"restaurantEmail,omitempty"`
+	RestaurantAddress  *string `json:"restaurantAddress,omitempty"`
+	RestaurantWebsite  *string `json:"restaurantWebsite,omitempty"`
+}
+
 type NewUser struct {
 	ID    *int   `json:"id,omitempty"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
+}
+
+type Restaurant struct {
+	ID                 int     `json:"id"`
+	UserID             *int    `json:"userId,omitempty"`
+	RestaurantName     string  `json:"restaurantName"`
+	RestaurantLogo     string  `json:"restaurantLogo"`
+	RestaurantFavicon  *string `json:"restaurantFavicon,omitempty"`
+	ThumbnailDesktop   string  `json:"thumbnailDesktop"`
+	RestaurantPhone    *string `json:"restaurantPhone,omitempty"`
+	RestaurantWhatsapp *string `json:"restaurantWhatsapp,omitempty"`
+	RestaurantEmail    *string `json:"restaurantEmail,omitempty"`
+	RestaurantAddress  *string `json:"restaurantAddress,omitempty"`
+	RestaurantWebsite  *string `json:"restaurantWebsite,omitempty"`
+	User               *User   `json:"user,omitempty"`
+}
+
+type UpdateRestaurantInput struct {
+	ID                 int     `json:"id"`
+	UserID             *int    `json:"userId,omitempty"`
+	RestaurantName     *string `json:"restaurantName,omitempty"`
+	RestaurantLogo     *string `json:"restaurantLogo,omitempty"`
+	RestaurantFavicon  *string `json:"restaurantFavicon,omitempty"`
+	ThumbnailDesktop   *string `json:"thumbnailDesktop,omitempty"`
+	RestaurantPhone    *string `json:"restaurantPhone,omitempty"`
+	RestaurantWhatsapp *string `json:"restaurantWhatsapp,omitempty"`
+	RestaurantEmail    *string `json:"restaurantEmail,omitempty"`
+	RestaurantAddress  *string `json:"restaurantAddress,omitempty"`
+	RestaurantWebsite  *string `json:"restaurantWebsite,omitempty"`
 }
 
 type UpdateUserInput struct {

@@ -7,9 +7,26 @@ type User {
   email: String!
 }
 
+type Restaurant {
+  id: Int!
+  userId: Int
+  restaurantName: String!
+  restaurantLogo: String!
+  restaurantFavicon: String
+  thumbnailDesktop: String!
+  restaurantPhone: String
+  restaurantWhatsapp: String
+  restaurantEmail: String
+  restaurantAddress: String
+  restaurantWebsite: String
+  user: User
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User
+  restaurants: [Restaurant!]!
+  restaurant(id: Int!): Restaurant
 }
 
 input NewUser {
@@ -24,8 +41,40 @@ input UpdateUserInput {
   email: String
 }
 
+
+input NewRestaurant {
+  userId: Int
+  restaurantName: String!
+  restaurantLogo: String!
+  restaurantFavicon: String
+  thumbnailDesktop: String!
+  restaurantPhone: String
+  restaurantWhatsapp: String
+  restaurantEmail: String
+  restaurantAddress: String
+  restaurantWebsite: String
+}
+
+input UpdateRestaurantInput {
+  id: Int!
+  userId: Int
+  restaurantName: String
+  restaurantLogo: String
+  restaurantFavicon: String
+  thumbnailDesktop: String
+  restaurantPhone: String
+  restaurantWhatsapp: String
+  restaurantEmail: String
+  restaurantAddress: String
+  restaurantWebsite: String
+}
+
 type Mutation {
   createUser(input: NewUser!): User!
   updateUser(input: UpdateUserInput!): User!
   deleteUser(id: Int!): User!
+  createRestaurant(input: NewRestaurant!): Restaurant!
+  updateRestaurant(input: UpdateRestaurantInput!): Restaurant!
+  deleteRestaurant(id: Int!): Restaurant!
+  restaurantsByUserID(userID: Int!): [Restaurant!]!
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/shennawardana23/graphql-pba/graph/model"
 	"github.com/shennawardana23/graphql-pba/internal/entity"
 	"github.com/shennawardana23/graphql-pba/internal/util/exception"
+	"github.com/shennawardana23/graphql-pba/internal/util/helper"
 	"github.com/shennawardana23/graphql-pba/internal/util/validation_model"
 	"github.com/shennawardana23/graphql-pba/internal/util/validator"
 )
@@ -124,6 +125,154 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (*model.User,
 	return &model.User{ID: id}, nil
 }
 
+// CreateRestaurant is the resolver for the createRestaurant field.
+func (r *mutationResolver) CreateRestaurant(ctx context.Context, input model.NewRestaurant) (*model.Restaurant, error) {
+	restaurant := &entity.Restaurant{
+		UserID:             int64(*input.UserID),
+		RestaurantName:     input.RestaurantName,
+		RestaurantLogo:     input.RestaurantLogo,
+		RestaurantFavicon:  *input.RestaurantFavicon,
+		ThumbnailDesktop:   input.ThumbnailDesktop,
+		RestaurantPhone:    *input.RestaurantPhone,
+		RestaurantWhatsapp: *input.RestaurantWhatsapp,
+		RestaurantEmail:    *input.RestaurantEmail,
+		RestaurantAddress:  *input.RestaurantAddress,
+		RestaurantWebsite:  *input.RestaurantWebsite,
+	}
+
+	if err := r.RestaurantRepository.Create(ctx, restaurant); err != nil {
+		return nil, exception.ErrInternalServer
+	}
+
+	return &model.Restaurant{
+		ID:                 int(restaurant.ID),
+		UserID:             helper.Int64ToIntPtr(&restaurant.UserID),
+		RestaurantName:     restaurant.RestaurantName,
+		RestaurantLogo:     restaurant.RestaurantLogo,
+		RestaurantFavicon:  &restaurant.RestaurantFavicon,
+		ThumbnailDesktop:   restaurant.ThumbnailDesktop,
+		RestaurantPhone:    &restaurant.RestaurantPhone,
+		RestaurantWhatsapp: &restaurant.RestaurantWhatsapp,
+		RestaurantEmail:    &restaurant.RestaurantEmail,
+		RestaurantAddress:  &restaurant.RestaurantAddress,
+		RestaurantWebsite:  &restaurant.RestaurantWebsite,
+	}, nil
+}
+
+// UpdateRestaurant is the resolver for the updateRestaurant field.
+func (r *mutationResolver) UpdateRestaurant(ctx context.Context, input model.UpdateRestaurantInput) (*model.Restaurant, error) {
+	restaurant, err := r.RestaurantRepository.FindByID(ctx, int64(input.ID))
+	if err != nil {
+		return nil, exception.ErrInternalServer
+	}
+	if restaurant == nil {
+		return nil, exception.ErrNotFound
+	}
+
+	// Update fields if provided
+	if input.UserID != nil {
+		restaurant.UserID = int64(*input.UserID)
+	}
+	if input.RestaurantName != nil {
+		restaurant.RestaurantName = *input.RestaurantName
+	}
+	if input.RestaurantLogo != nil {
+		restaurant.RestaurantLogo = *input.RestaurantLogo
+	}
+	if input.RestaurantFavicon != nil {
+		restaurant.RestaurantFavicon = *input.RestaurantFavicon
+	}
+	if input.ThumbnailDesktop != nil {
+		restaurant.ThumbnailDesktop = *input.ThumbnailDesktop
+	}
+	if input.RestaurantPhone != nil {
+		restaurant.RestaurantPhone = *input.RestaurantPhone
+	}
+	if input.RestaurantWhatsapp != nil {
+		restaurant.RestaurantWhatsapp = *input.RestaurantWhatsapp
+	}
+	if input.RestaurantEmail != nil {
+		restaurant.RestaurantEmail = *input.RestaurantEmail
+	}
+	if input.RestaurantAddress != nil {
+		restaurant.RestaurantAddress = *input.RestaurantAddress
+	}
+	if input.RestaurantWebsite != nil {
+		restaurant.RestaurantWebsite = *input.RestaurantWebsite
+	}
+
+	if err := r.RestaurantRepository.Update(ctx, restaurant); err != nil {
+		return nil, exception.ErrInternalServer
+	}
+
+	return &model.Restaurant{
+		ID:                 int(restaurant.ID),
+		UserID:             helper.Int64ToIntPtr(&restaurant.UserID),
+		RestaurantName:     restaurant.RestaurantName,
+		RestaurantLogo:     restaurant.RestaurantLogo,
+		RestaurantFavicon:  &restaurant.RestaurantFavicon,
+		ThumbnailDesktop:   restaurant.ThumbnailDesktop,
+		RestaurantPhone:    &restaurant.RestaurantPhone,
+		RestaurantWhatsapp: &restaurant.RestaurantWhatsapp,
+		RestaurantEmail:    &restaurant.RestaurantEmail,
+		RestaurantAddress:  &restaurant.RestaurantAddress,
+		RestaurantWebsite:  &restaurant.RestaurantWebsite,
+	}, nil
+}
+
+// DeleteRestaurant is the resolver for the deleteRestaurant field.
+func (r *mutationResolver) DeleteRestaurant(ctx context.Context, id int) (*model.Restaurant, error) {
+	restaurant, err := r.RestaurantRepository.FindByID(ctx, int64(id))
+	if err != nil {
+		return nil, exception.ErrInternalServer
+	}
+	if restaurant == nil {
+		return nil, exception.ErrNotFound
+	}
+
+	if err := r.RestaurantRepository.Delete(ctx, int64(id)); err != nil {
+		return nil, exception.ErrInternalServer
+	}
+
+	return &model.Restaurant{ID: id}, nil
+}
+
+// Mutation to get restaurants by user ID
+func (r *mutationResolver) RestaurantsByUserID(ctx context.Context, userID int) ([]*model.Restaurant, error) {
+	var restaurants []entity.Restaurant
+	err := r.RestaurantRepository.WithContext(ctx).
+		Model(&restaurants).
+		Relation("User").
+		Where("user_id = ?", userID).
+		Select()
+	if err != nil {
+		return nil, exception.TranslatePostgresError(ctx, err)
+	}
+
+	var result []*model.Restaurant
+	for _, restaurant := range restaurants {
+		result = append(result, &model.Restaurant{
+			ID:                 int(restaurant.ID),
+			UserID:             helper.Int64ToIntPtr(&restaurant.UserID),
+			RestaurantName:     restaurant.RestaurantName,
+			RestaurantLogo:     restaurant.RestaurantLogo,
+			RestaurantFavicon:  &restaurant.RestaurantFavicon,
+			ThumbnailDesktop:   restaurant.ThumbnailDesktop,
+			RestaurantPhone:    &restaurant.RestaurantPhone,
+			RestaurantWhatsapp: &restaurant.RestaurantWhatsapp,
+			RestaurantEmail:    &restaurant.RestaurantEmail,
+			RestaurantAddress:  &restaurant.RestaurantAddress,
+			RestaurantWebsite:  &restaurant.RestaurantWebsite,
+			User: &model.User{
+				ID:    int(restaurant.User.ID),
+				Name:  restaurant.User.Name,
+				Email: restaurant.User.Email,
+			},
+		})
+	}
+	return result, nil
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	users, err := r.UserRepository.FindAll(ctx)
@@ -165,6 +314,57 @@ func (r *queryResolver) User(ctx context.Context, id int) (*model.User, error) {
 		ID:    int(user.ID),
 		Name:  user.Name,
 		Email: user.Email,
+	}, nil
+}
+
+// Restaurants is the resolver for the restaurants field.
+func (r *queryResolver) Restaurants(ctx context.Context) ([]*model.Restaurant, error) {
+	restaurants, err := r.RestaurantRepository.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*model.Restaurant
+	for _, r := range restaurants {
+		result = append(result, &model.Restaurant{
+			ID:                 int(r.ID),
+			UserID:             helper.Int64ToIntPtr(&r.UserID),
+			RestaurantName:     r.RestaurantName,
+			RestaurantLogo:     r.RestaurantLogo,
+			RestaurantFavicon:  &r.RestaurantFavicon,
+			ThumbnailDesktop:   r.ThumbnailDesktop,
+			RestaurantPhone:    &r.RestaurantPhone,
+			RestaurantWhatsapp: &r.RestaurantWhatsapp,
+			RestaurantEmail:    &r.RestaurantEmail,
+			RestaurantAddress:  &r.RestaurantAddress,
+			RestaurantWebsite:  &r.RestaurantWebsite,
+		})
+	}
+	return result, nil
+}
+
+// Restaurant is the resolver for the restaurant field.
+func (r *queryResolver) Restaurant(ctx context.Context, id int) (*model.Restaurant, error) {
+	restaurant, err := r.RestaurantRepository.FindByID(ctx, int64(id))
+	if err != nil {
+		return nil, exception.ErrInternalServer
+	}
+	if restaurant == nil {
+		return nil, exception.ErrNotFound
+	}
+
+	return &model.Restaurant{
+		ID:                 int(restaurant.ID),
+		UserID:             helper.Int64ToIntPtr(&restaurant.UserID),
+		RestaurantName:     restaurant.RestaurantName,
+		RestaurantLogo:     restaurant.RestaurantLogo,
+		RestaurantFavicon:  &restaurant.RestaurantFavicon,
+		ThumbnailDesktop:   restaurant.ThumbnailDesktop,
+		RestaurantPhone:    &restaurant.RestaurantPhone,
+		RestaurantWhatsapp: &restaurant.RestaurantWhatsapp,
+		RestaurantEmail:    &restaurant.RestaurantEmail,
+		RestaurantAddress:  &restaurant.RestaurantAddress,
+		RestaurantWebsite:  &restaurant.RestaurantWebsite,
 	}, nil
 }
 

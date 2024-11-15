@@ -34,7 +34,7 @@ By implementing these monitoring strategies, you can gain valuable insights into
 - fluentd
 
   ```bash
-     fluent-bit -c /Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/pba-graphql/fluent-bit.conf
+     fluent-bit -c /Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/graphql-pba/fluent-bit.conf
   ```
 
 - promotheus
