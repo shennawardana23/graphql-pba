@@ -12,14 +12,6 @@
 # Dependency directories
 /vendor/
 
-# Go modules
-go.sum
-go.mod
-
-# Logs
-/logs/
-*.log
-
 # Environment variables
 .env
 
