@@ -12,9 +12,6 @@
 # Dependency directories
 /vendor/
 
-# Environment variables
-.env
-
 # IDE and editor files
 .idea/
 .vscode/
