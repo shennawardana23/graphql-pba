@@ -25,7 +25,7 @@ flowchart LR
     Grafana("fa:fa-chart-pie Grafana")
 
     %% Edge connections between nodes
-    Client <-->|GraphQL Requests| GraphQL_Server
+    Client <-->|GraphQL Requests/Response| GraphQL_Server
     GraphQL_Server -->|Middleware| Middleware
     Middleware -->|Business Logic| Business_Logic
     Business_Logic <--> |Data Access| Repository
@@ -39,14 +39,14 @@ flowchart LR
 
     %% Individual node styling
     style Client fill:#ffcc00,stroke:#333,stroke-width:2px;
-    style GraphQL_Server fill:#66ccff,stroke:#333,stroke-width:2px;
-    style Middleware fill:#ff99cc,stroke:#333,stroke-width:2px;
+    style GraphQL_Server fill:#ff99cc,stroke:#333,stroke-width:2px;
+    style Middleware fill:#ffff99,stroke:#333,stroke-width:2px;
     style Business_Logic fill:#66ccff,stroke:#333,stroke-width:2px;
     style Repository fill:#99ff99,stroke:#333,stroke-width:2px;
-    style Database_Layer fill:#ffccff,stroke:#333,stroke-width:2px;
-    style PostgreSQL fill:#ffccff,stroke:#333,stroke-width:2px;
+    style Database_Layer fill:#99ff99,stroke:#333,stroke-width:2px;
+    style PostgreSQL fill:#99ff99,stroke:#333,stroke-width:2px;
     style Logging_Service fill:#ffff99,stroke:#333,stroke-width:2px;
-    style Monitoring_Service fill:#ccffcc,stroke:#333,stroke-width:2px;
+    style Monitoring_Service fill:#ccccff,stroke:#333,stroke-width:2px;
     style Prometheus fill:#ccccff,stroke:#333,stroke-width:2px;
     style Grafana fill:#ccccff,stroke:#333,stroke-width:2px;
 
