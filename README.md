@@ -25,7 +25,7 @@ flowchart LR
     Grafana("fa:fa-chart-pie Grafana")
 
     %% Edge connections between nodes
-    Client <-->|GraphQL Requests/Response| GraphQL_Server
+    Client <-->|query| GraphQL_Server
     GraphQL_Server -->|Middleware| Middleware
     Middleware -->|Business Logic| Business_Logic
     Business_Logic <--> |Data Access| Repository
@@ -255,7 +255,7 @@ mutation {
 
 6. **Responses Error**:
 
-- Indentify Unique attributes
+- Identify Unique attributes
 
 ```json
 {
@@ -310,4 +310,4 @@ Mutations are used to modify data on the server. They can create, update, or del
 - **Configuration Management**: Manage environment variables and configuration settings for different environments (development/production).
 - **Logging**: Implement logging for requests, responses, and errors to facilitate debugging and performance monitoring.
 - **Monitoring**: Integrate monitoring tools to track application performance and health metrics.
-- **Testing**: Create unit tests for services and integration tests for resolvers, including database mocking for isolated testing.****
+- **Testing**: Create unit tests for services and integration tests for resolvers, including database mocking for isolated testing.
