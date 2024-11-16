@@ -5,40 +5,62 @@
 The architecture provided is a solid foundation for a GraphQL-based application using Go.
 
 ```mermaid
-graph LR
-    classDef clientStyle fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef serverStyle fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef middlewareStyle fill:#ffcc00,stroke:#333,stroke-width:2px;
-    classDef logicStyle fill:#90ee90,stroke:#333,stroke-width:2px;
-    classDef repoStyle fill:#ff9999,stroke:#333,stroke-width:2px;
-    classDef dbStyle fill:#ffccff,stroke:#333,stroke-width:2px;
-    classDef serviceStyle fill:#ffff99,stroke:#333,stroke-width:2px;
-    classDef monitoringStyle fill:#ccffcc,stroke:#333,stroke-width:2px;
-    classDef metricsStyle fill:#ccccff,stroke:#333,stroke-width:2px;
+---
+config:
+  look: handDrawn
+  layout: elk
+---
+flowchart LR
+    %% Nodes with Icons
+    Client("fa:fa-user Client")
+    GraphQL_Server("fa:fa-server GraphQL Server")
+    Middleware("fa:fa-cogs Middleware")
+    Business_Logic("fa:fa-briefcase Business Logic")
+    Repository("fa:fa-database Repository")
+    Database_Layer("fa:fa-database Database Layer")
+    PostgreSQL("fa:fa-database PostgreSQL")
+    Logging_Service("fa:fa-pencil-alt Logging Service")
+    Monitoring_Service("fa:fa-chart-line Monitoring Service")
+    Prometheus("fa:fa-chart-bar Prometheus")
+    Grafana("fa:fa-chart-pie Grafana")
 
-    Client[Client]:::clientStyle <--> |GraphQL Requests| GraphQL_Server[GraphQL Server]:::serverStyle
-    GraphQL_Server -->|Middleware| Middleware[Middleware]:::middlewareStyle
-    Middleware -->|Business Logic| Business_Logic[Business Logic]:::logicStyle
-    Business_Logic <--> |Data Access| Repository[Repository]:::repoStyle
-    Repository <--> |Database Queries| Database_Layer[Database Layer]:::dbStyle
-    Database_Layer <--> |PostgreSQL| PostgreSQL[PostgreSQL]:::dbStyle
-    Business_Logic -->|Logging| Logging_Service[Logging Service]:::serviceStyle
-    Business_Logic -->|Monitoring| Monitoring_Service[Monitoring Service]:::monitoringStyle
-    Monitoring_Service -->|Metrics| Prometheus[Prometheus]:::metricsStyle
-    Prometheus -->|Visualization| Grafana[Grafana]:::metricsStyle
+    %% Edge connections between nodes
+    Client <-->|GraphQL Requests| GraphQL_Server
+    GraphQL_Server -->|Middleware| Middleware
+    Middleware -->|Business Logic| Business_Logic
+    Business_Logic <--> |Data Access| Repository
+    Repository <--> |Database Queries| Database_Layer
+    Database_Layer <--> |PostgreSQL| PostgreSQL
+    Business_Logic -->|Logging| Logging_Service
+    Business_Logic -->|Monitoring| Monitoring_Service
+    Monitoring_Service -->|Metrics| Prometheus
+    Prometheus -->|Visualization| Grafana
     Business_Logic -->|Response| GraphQL_Server
 
-    linkStyle 0 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 1 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 2 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 3 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 4 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 5 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 6 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 7 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 8 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 9 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
-    linkStyle 10 stroke:#333,stroke-width:2px,stroke-dasharray: 5, 5;
+    %% Individual node styling
+    style Client fill:#ffcc00,stroke:#333,stroke-width:2px;
+    style GraphQL_Server fill:#66ccff,stroke:#333,stroke-width:2px;
+    style Middleware fill:#ff99cc,stroke:#333,stroke-width:2px;
+    style Business_Logic fill:#66ccff,stroke:#333,stroke-width:2px;
+    style Repository fill:#99ff99,stroke:#333,stroke-width:2px;
+    style Database_Layer fill:#ffccff,stroke:#333,stroke-width:2px;
+    style PostgreSQL fill:#ffccff,stroke:#333,stroke-width:2px;
+    style Logging_Service fill:#ffff99,stroke:#333,stroke-width:2px;
+    style Monitoring_Service fill:#ccffcc,stroke:#333,stroke-width:2px;
+    style Prometheus fill:#ccccff,stroke:#333,stroke-width:2px;
+    style Grafana fill:#ccccff,stroke:#333,stroke-width:2px;
+
+    %% Animations
+    linkStyle 0 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 1 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 2 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 3 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 4 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 5 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 6 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 7 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 8 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
+    linkStyle 9 stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5, 5;
 ```
 
 ## Technology Stack
