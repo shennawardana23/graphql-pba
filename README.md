@@ -73,17 +73,17 @@ flowchart LR
 
 ## Project Structure
 
-```cmd
+```folder
 project-root/
 ├── cmd/
-│   └── main.go                      # Application entry point, server setup
+│   └── main.go                     # Application entry point, server setup
 ├── graph/
 │   ├── generated/
-│   │   └── generated.go             # Auto-generated GraphQL code
+│   │   └── generated.go            # Auto-generated GraphQL code
 │   ├── models/
-│   │   └── models_gen.go            # Auto-generated GraphQL models
-│   ├── error.go                     # GraphQL error handling
-│   ├── resolver.go                  # GraphQL resolver implementations
+│   │   └── models_gen.go           # Auto-generated GraphQL models
+│   ├── error.go                    # GraphQL error handling
+│   ├── resolver.go                 # GraphQL resolver implementations
 │   ├── schema.graphqls             # GraphQL schema definition
 │   └── schema.resolvers.go         # GraphQL resolver implementations
 ├── internal/
@@ -176,7 +176,15 @@ DB_PORT=5432
 PORT=8080
 ```
 
-### 4. Testing the API
+### 4. Runing Apps
+
+```bash
+make generate
+> then
+make run 
+```
+
+### 5. Testing the API
 
 Once the server is running, you can test the API using the GraphQL playground at `http://localhost:9000/`.
 
