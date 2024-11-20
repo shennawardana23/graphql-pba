@@ -76,47 +76,49 @@ flowchart LR
 ```folder
 project-root/
 ├── cmd/
-│   └── main.go                     # Application entry point, server setup
+│   └── main.go                         # Application entry point, server setup
 ├── graph/
 │   ├── generated/
-│   │   └── generated.go            # Auto-generated GraphQL code
+│   │   └── generated.go                # Auto-generated GraphQL code
 │   ├── models/
-│   │   └── models_gen.go           # Auto-generated GraphQL models
-│   ├── error.go                    # GraphQL error handling
-│   ├── resolver.go                 # GraphQL resolver implementations
-│   ├── schema.graphqls             # GraphQL schema definition
-│   └── schema.resolvers.go         # GraphQL resolver implementations
+│   │   └── models_gen.go               # Auto-generated GraphQL models
+│   ├── error.go                        # GraphQL error handling
+│   ├── resolver.go                     # GraphQL resolver implementations
+│   ├── schema.graphqls                 # GraphQL schema definition
+│   └── schema.resolvers.go             # GraphQL resolver implementations
 ├── internal/
 │   ├── app/
 │   │   ├── database/
-│   │   │   └── db.go               # Database connection and configuration
+│   │   │   └── db.go                   # Database connection and configuration
 │   │   ├── monitoring/
-│   │   │   └── metric.go           # Prometheus metrics setup
+│   │   │   └── metric.go               # Prometheus metrics setup
 │   │   └── middleware/
-│   │       └── error_handler.go    # Global error handling middleware
+│   │       └── error_handler.go        # Global error handling middleware
 │   ├── entity/
-│   │   └── user.go                 # User domain model
+│   │   └── user.go                     # User entity model
 │   ├── repository/
-│   │   └── user.go                 # User database operations
+│   │   └── user.go                     # User database operations
 │   └── util/
 │       ├── exception/
-│       │   ├── errors.go           # Custom error definitions
-│       │   ├── exception_code.go   # Error codes constants
-│       │   └── helper.go           # Error helper functions
+│       │   ├── errors.go               # Custom error definitions
+│       │   ├── exception_code.go       # Error codes constants
+│       │   └── helper.go               # Error helper functions
 │       ├── logger/
-│       │   └── logger.go           # Logging configuration
-│       ├── validator/
-│       │   ├── custom_rules.go     # Custom validation rules
-│       │   ├── error_translator.go # Validation error formatting
-│       │   └── validator.go        # Input validation logic
+│       │   └── logger.go               # Logging configuration
+│       ├── validation_model/
+│       │   └── validation_model.go     # Validation model definitions
+│       └── validator/
+│           ├── custom_rules.go         # Custom validation rules
+│           ├── error_translator.go     # Validation error formatting
+│           └── validator.go            # Input validation logic
 ├── logs/
-│   └── app.log                     # Application logs
+│   └── app.log                         # Application logs
 ├── migrations/
-│   └── user.sql                    # Database migration scripts
-├── fluent-bit.conf                 # Log forwarding configuration
-├── go.mod                          # Go module definition
-├── go.sum                          # Go module checksums
-└── gqlgen.yml                      # GraphQL code generation config
+│   └── user.sql
+├── fluent-bit.conf                     # Log forwarding configuration
+├── go.mod
+├── go.sum
+└── gqlgen.yml                          # GraphQL code generation config
 ```
 
 ## Implementation Steps
